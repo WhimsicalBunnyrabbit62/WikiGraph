@@ -25,5 +25,21 @@ int main() {
 
     std::cout << maximumId << std::endl;
 
+    std::vector<uint32_t> offsets;
+    std::vector<uint32_t> cursors;
+    offsets.resize(maximumId+1);
+    cursors.resize(maximumId+1);
+
+    offsets[0] = cursors[0] = 0;
+    offsets[1] = cursors[1]= outdegrees[0];
+
+    for (size_t i{2}; i <= maximumId+1; ++i) 
+        cursors[i] = offsets[i] = offsets[i-1] + outdegrees[i-1];
+
+    std::cout << offsets[maximumId+1] << std::endl;
+
+    std::vector<uint32_t> neighbors;
+    neighbors.resize(28511807);
+
     return 0;
 }
