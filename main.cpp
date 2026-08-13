@@ -7,6 +7,38 @@
 #include <climits>
 #include <vector>
 #include <cstdint>
+#include <queue>
+#include <unordered_set>
+
+int bfs(uint32_t startNode, uint32_t target, const std::vector<uint32_t> &neighbors, const std::vector<uint32_t> &offsets) {
+    if (startNode == target) return 0;
+
+    std::vector<int> distance(1791489, -1);
+    std::vector<bool> visited(1791489, false);
+    std::queue<uint32_t> q;
+
+    q.push(startNode);
+    visited[startNode] = true;
+    distance[startNode] = 0;
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+
+        for (size_t i{offsets[u]}; i < offsets[u+1]; ++i) {
+            uint32_t n = neighbors[i];
+            if (!visited[n]) {
+                visited[n] = true;
+                distance[n] = distance[u]+1;
+                q.push(n);
+
+                if (n == target) return distance[n];
+            }
+        }
+    }
+
+    return -1;
+}
 
 int main() {
     std::ifstream inputFile("wiki-topcats.txt");
@@ -40,6 +72,14 @@ int main() {
 
     std::vector<uint32_t> neighbors;
     neighbors.resize(28511807); // HARD CODED FIX IF CHANGING DATASETS
+
+    inputFile.clear();
+    inputFile.seekg(0, std::ios::beg);
+
+    int u, v;
+    while (inputFile >> u >> v) 
+        neighbors[cursors[u]++] = v;
+    
 
     return 0;
 }
