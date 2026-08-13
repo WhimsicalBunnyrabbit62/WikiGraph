@@ -39,7 +39,7 @@ int main() {
     std::cout << offsets[maximumId+1] << std::endl;
 
     std::vector<uint32_t> neighbors;
-    neighbors.resize(28511807);
+    neighbors.resize(28511807); // HARD CODED FIX IF CHANGING DATASETS
 
     return 0;
 }
