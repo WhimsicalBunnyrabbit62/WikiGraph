@@ -10,15 +10,13 @@
 #include <queue>
 #include <unordered_set>
 
-int bfs(uint32_t startNode, uint32_t target, const std::vector<uint32_t> &neighbors, const std::vector<uint32_t> &offsets) {
+int bfs(uint32_t startNode, uint32_t target, const std::vector<uint32_t> &neighbors, const std::vector<uint32_t> &offsets, std::vector<int> &predecessor) {
     if (startNode == target) return 0;
 
     std::vector<int> distance(1791489, -1);
-    std::vector<bool> visited(1791489, false);
     std::queue<uint32_t> q;
 
     q.push(startNode);
-    visited[startNode] = true;
     distance[startNode] = 0;
 
     while (!q.empty()) {
@@ -27,10 +25,10 @@ int bfs(uint32_t startNode, uint32_t target, const std::vector<uint32_t> &neighb
 
         for (size_t i{offsets[u]}; i < offsets[u+1]; ++i) {
             uint32_t n = neighbors[i];
-            if (!visited[n]) {
-                visited[n] = true;
+            if (distance[n] == -1) {
                 distance[n] = distance[u]+1;
                 q.push(n);
+                predecessor[n] = u;
 
                 if (n == target) return distance[n];
             }
@@ -38,6 +36,23 @@ int bfs(uint32_t startNode, uint32_t target, const std::vector<uint32_t> &neighb
     }
 
     return -1;
+}
+
+std::vector<std::string> buildNameList() {
+    std::ifstream inputFile("wiki-topcats-page-names.txt");
+    if (!inputFile.is_open()) { std::cout<<"sumtinwong"; return {}; }
+
+    std::vector<std::string> result;
+    result.resize(1791489); // HARD CODED FIX IF CHANGING DATASETS
+
+    uint32_t id;
+    std::string name;
+
+    while (inputFile >> id) {
+        std::getline(inputFile, result[id]);
+    }
+
+    return result;
 }
 
 int main() {
@@ -48,6 +63,7 @@ int main() {
     std::vector<uint32_t> outdegrees;
     outdegrees.resize(1791489); // HARD CODED FIX IF CHANGING DATASETS
 
+    std::vector<std::string> names = buildNameList();
 
     int firstNum, secondNum;
     while (inputFile >> firstNum >> secondNum) {
@@ -80,6 +96,33 @@ int main() {
     while (inputFile >> u >> v) 
         neighbors[cursors[u]++] = v;
     
+
+    std::vector<int> predecessor;
+    predecessor.resize(1791489);
+
+    int START = 1;
+    int TARGET = 1748792;
+    int result = bfs(START, TARGET, neighbors, offsets, predecessor);
+
+    int indu = TARGET;
+
+    if (result != -1) {
+        std::vector<int> path;
+        while (indu != START) {
+            path.push_back(indu);
+            indu = predecessor[indu];
+        }
+
+        path.push_back(START);
+        std::reverse(path.begin(), path.end());
+
+        for (size_t i{0}; i < path.size(); ++i) {
+            std::cout << names[path[i]];
+            if (i != path.size()-1) std::cout << " =>";
+        }
+
+        std::cout << std::endl;
+    }
 
     return 0;
 }
